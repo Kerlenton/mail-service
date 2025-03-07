@@ -1,0 +1,16 @@
+server:
+  port: "9090"
+
+database:
+  host: "testhost"
+  port: 1234
+  user: "testuser"
+  password: "testpassword"
+  dbname: "testdb"
+
+redis:
+  host: "testredis"
+  port: 5678
+
+rabbitmq:
+  url: "amqp://test:test@localhost:5672/"
