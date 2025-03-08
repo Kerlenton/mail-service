@@ -6,6 +6,7 @@ import (
 
 	"mail-service/config"
 
+	"github.com/pressly/goose/v3"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -23,4 +24,25 @@ func InitDB(cfg *config.Config) {
 
 	DB = db
 	log.Println("Connected to database")
+
+	RunMigrations(db)
+}
+
+func RunMigrations(db *gorm.DB) {
+	const migrationsDir = "migrations"
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		log.Fatalf("Failed to set goose dialect: %v", err)
+	}
+
+	dbInstance, err := db.DB()
+	if err != nil {
+		log.Fatalf("Failed to get database instance: %v", err)
+	}
+
+	if err := goose.Up(dbInstance, migrationsDir); err != nil {
+		log.Fatalf("Failed to apply migrations: %v", err)
+	}
+
+	log.Println("Migrations applied successfully")
 }
