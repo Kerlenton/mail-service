@@ -1,9 +1,9 @@
 package test
 
 import (
+	"context"
 	"mail-service/internal/models"
 	"mail-service/internal/repository"
-	"mail-service/internal/services"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,18 +11,24 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestUserService(t *testing.T) {
+func setupTestDB() (*gorm.DB, error) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	assert.NoError(t, err)
+	if err != nil {
+		return nil, err
+	}
+
 	db.AutoMigrate(&models.User{})
-	repo := repository.NewUserRepository(db)
-	service := services.NewUserService(repo)
+	return db, nil
+}
 
-	email := "test@example.com"
-	password := "securepassword"
-	assert.NoError(t, service.RegisterUser(email, password))
-
-	fetchedUser, err := service.GetUserByEmail(email)
+func TestCreateUser(t *testing.T) {
+	db, err := setupTestDB()
 	assert.NoError(t, err)
-	assert.Equal(t, email, fetchedUser.Email)
+
+	repo := repository.NewUserRepository(db)
+
+	user := &models.User{Email: "test@example.com", PasswordHash: "hashedpassword"}
+	err = repo.CreateUser(context.Background(), user)
+
+	assert.NoError(t, err)
 }

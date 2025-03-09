@@ -6,8 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(userHandler *handlers.UserHandler) *gin.Engine {
-	r := gin.Default()
+func SetupRouter(r *gin.Engine, userHandler *handlers.UserHandler) {
 	r.POST("/register", userHandler.Register)
-	return r
 }

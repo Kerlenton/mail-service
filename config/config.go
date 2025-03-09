@@ -1,5 +1,7 @@
 package config
 
+import "github.com/spf13/viper"
+
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
@@ -8,22 +10,38 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Port string
+	Port int `mapstructure:"port"`
 }
 
 type DatabaseConfig struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	DBName   string
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	User     string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
+	DBName   string `mapstructure:"dbname"`
 }
 
 type RedisConfig struct {
-	Host string
-	Port int
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
 }
 
 type RabbitMQConfig struct {
-	URL string
+	URL string `mapstructure:"url"`
+}
+
+func LoadConfig(path string) (*Config, error) {
+	viper.SetConfigFile(path)
+	viper.SetConfigType("yaml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		return nil, err
+	}
+
+	var cfg Config
+	if err := viper.Unmarshal(&cfg); err != nil {
+		return nil, err
+	}
+
+	return &cfg, nil
 }

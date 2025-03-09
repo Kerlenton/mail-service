@@ -1,26 +1,33 @@
 package main
 
 import (
+	"context"
 	"log"
-	"mail-service/config"
-	"mail-service/internal/database"
-	"mail-service/internal/handlers"
-	"mail-service/internal/repository"
-	"mail-service/internal/router"
-	"mail-service/internal/services"
+	"mail-service/internal"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func main() {
-	cfg, err := config.LoadConfig("config/config.yaml")
-	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
-	}
+	app := internal.NewApp()
 
-	database.InitDB(cfg)
-	repo := repository.NewUserRepository(database.DB)
-	service := services.NewUserService(repo)
-	handler := handlers.NewUserHandler(service)
+	// Graceful shutdown
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
-	r := router.SetupRouter(handler)
-	r.Run(":" + cfg.Server.Port)
+	go func() {
+		if err := app.Run(); err != nil {
+			log.Fatalf("Server error: %v", err)
+		}
+	}()
+
+	<-ctx.Done()
+	log.Println("Shutting down server...")
+
+	// Завершаем работу сервера с тайм-аутом
+	ctxShutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	app.Shutdown(ctxShutdown)
 }
