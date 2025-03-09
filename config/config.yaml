@@ -2,15 +2,15 @@ server:
   port: "8080"
 
 database:
-  host: "db"
-  port: 5432
-  user: "postgres"
-  password: "password"
-  dbname: "mail_service"
+  host: "db"              # Имя контейнера базы данных из docker-compose.yaml
+  port: 5432              # Порт PostgreSQL
+  user: "postgres"        # Имя пользователя для PostgreSQL
+  password: "password"    # Пароль для PostgreSQL
+  dbname: "mail_service"  # Имя базы данных
 
 redis:
-  host: "redis"
-  port: 6379
+  host: "redis"           # Имя контейнера Redis из docker-compose.yaml
+  port: 6379              # Порт Redis
 
 rabbitmq:
-  url: "amqp://guest:guest@rabbitmq:5672/"
+  url: "amqp://guest:guest@rabbitmq:5672/"  # URL для RabbitMQ
