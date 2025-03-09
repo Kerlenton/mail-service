@@ -14,3 +14,10 @@ redis:
 
 rabbitmq:
   url: "amqp://guest:guest@rabbitmq:5672/"
+
+email:
+  templates_path: "templates/"
+  sender: "no-reply@mail-service.com"
+
+auth:
+  jwt_secret: "your-secret-key"  # externalize your JWT secret here

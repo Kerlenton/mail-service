@@ -11,6 +11,7 @@ type Config struct {
 	Database DatabaseConfig `mapstructure:"database"`
 	Redis    RedisConfig    `mapstructure:"redis"`
 	RabbitMQ RabbitMQConfig `mapstructure:"rabbitmq"`
+	Auth     AuthConfig     `mapstructure:"auth"`
 }
 
 type ServerConfig struct {
@@ -32,6 +33,10 @@ type RedisConfig struct {
 
 type RabbitMQConfig struct {
 	URL string `mapstructure:"url"`
+}
+
+type AuthConfig struct {
+	JwtSecret string `mapstructure:"jwt_secret"`
 }
 
 func LoadConfig(path string) (*Config, error) {

@@ -11,6 +11,8 @@ services:
       - DATABASE_URL=postgres://user:password@db:5432/mail_service
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - EMAIL_TEMPLATES_PATH=templates/
+      - EMAIL_SENDER=no-reply@mail-service.com
     depends_on:
       - db
       - redis
