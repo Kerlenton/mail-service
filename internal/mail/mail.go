@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time" // added for retry
 
 	"github.com/streadway/amqp"
 )
@@ -21,9 +22,19 @@ func NewMailService() (*MailService, error) {
 		return nil, fmt.Errorf("RABBITMQ_URL not set")
 	}
 
-	conn, err := amqp.Dial(rabbitURL)
+	var conn *amqp.Connection
+	var err error
+	const maxAttempts = 5
+	for i := 1; i <= maxAttempts; i++ {
+		conn, err = amqp.Dial(rabbitURL)
+		if err == nil {
+			break
+		}
+		log.Printf("RabbitMQ connection failed (attempt %d): %v", i, err)
+		time.Sleep(2 * time.Second)
+	}
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to RabbitMQ: %w", err)
+		return nil, fmt.Errorf("failed to connect to RabbitMQ after retries: %w", err)
 	}
 
 	ch, err := conn.Channel()

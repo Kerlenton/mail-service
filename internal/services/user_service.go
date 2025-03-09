@@ -20,6 +20,8 @@ func NewUserService(repo *repository.UserRepository, logger *zap.Logger) *UserSe
 }
 
 func (s *UserService) RegisterUser(ctx context.Context, email, password string) error {
+	// Debug: log the repository pointer value
+	s.logger.Debug("RegisterUser called", zap.Any("repo", s.repo))
 	if len(password) < 6 {
 		return errors.New("password too short")
 	}

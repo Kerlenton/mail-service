@@ -40,6 +40,10 @@ func NewApp() *App {
 	if err != nil {
 		logger.Fatal("Failed to connect to DB", zap.Error(err))
 	}
+	// Extra check for the underlying DB pointer.
+	if db.DB == nil {
+		logger.Fatal("Database.DB is nil after initialization")
+	}
 
 	// Initialize the mail service
 	mailSvc, err := mail.NewMailService()
