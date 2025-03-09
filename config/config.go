@@ -1,12 +1,16 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"fmt"
+
+	"github.com/spf13/viper"
+)
 
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
-	Redis    RedisConfig
-	RabbitMQ RabbitMQConfig
+	Server   ServerConfig   `mapstructure:"server"`
+	Database DatabaseConfig `mapstructure:"database"`
+	Redis    RedisConfig    `mapstructure:"redis"`
+	RabbitMQ RabbitMQConfig `mapstructure:"rabbitmq"`
 }
 
 type ServerConfig struct {
@@ -31,16 +35,24 @@ type RabbitMQConfig struct {
 }
 
 func LoadConfig(path string) (*Config, error) {
-	viper.SetConfigFile(path)
-	viper.SetConfigType("yaml")
+	// Create a new Viper instance for isolation.
+	v := viper.New()
+	v.SetConfigFile(path)
+	v.SetConfigType("yaml")
 
-	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
+	// Enable overriding via environment variables.
+	v.SetEnvPrefix("MAIL_SERVICE")
+	v.AutomaticEnv()
+
+	// Read configuration file.
+	if err := v.ReadInConfig(); err != nil {
+		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
 
+	// Unmarshal config into struct.
 	var cfg Config
-	if err := viper.Unmarshal(&cfg); err != nil {
-		return nil, err
+	if err := v.Unmarshal(&cfg); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
 
 	return &cfg, nil
