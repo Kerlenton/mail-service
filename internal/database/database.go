@@ -29,7 +29,6 @@ func InitDB(cfg *config.Config, logger *zap.Logger) (*Database, error) {
 
 	log.Println("Connected to database")
 
-	// Автоматически применяем миграции
 	if err := RunMigrations(db); err != nil {
 		logger.Error("Failed to apply migrations", zap.Error(err))
 		return nil, err
