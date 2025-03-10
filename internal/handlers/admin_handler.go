@@ -19,11 +19,9 @@ func NewAdminHandler(repo *repository.UserRepository, logger *zap.Logger) *Admin
 }
 
 func (ah *AdminHandler) ListUsers(c *gin.Context) {
-	// Dummy response; replace with actual user query.
 	c.JSON(http.StatusOK, gin.H{"message": "User list endpoint (not implemented)"})
 }
 
 func (ah *AdminHandler) ManageMail(c *gin.Context) {
-	// Dummy response for mail management actions.
 	c.JSON(http.StatusOK, gin.H{"message": "Mail management endpoint (not implemented)"})
 }

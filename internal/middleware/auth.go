@@ -21,13 +21,11 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Authorization header"})
 			return
 		}
-
 		claims, err := auth.ValidateToken(parts[1])
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			return
 		}
-		// Optionally store claims in context
 		c.Set("user", claims)
 		c.Next()
 	}

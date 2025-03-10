@@ -1,23 +1,18 @@
 server:
   port: "8080"
-
 database:
   host: "db"
   port: 5432
   user: "postgres"
   password: "password"
   dbname: "mail_service"
-
 redis:
   host: "redis"
   port: 6379
-
 rabbitmq:
   url: "amqp://guest:guest@rabbitmq:5672/"
-
 email:
   templates_path: "templates/"
   sender: "no-reply@mail-service.com"
-
 auth:
-  jwt_secret: "your-secret-key"  # externalize your JWT secret here
+  jwt_secret: "your-secret-key"

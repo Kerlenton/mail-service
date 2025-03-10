@@ -7,7 +7,6 @@ import (
 	"mail-service/internal/auth"
 	"mail-service/internal/database"
 	"mail-service/internal/handlers"
-	"mail-service/internal/mail"
 	"mail-service/internal/middleware"
 	"mail-service/internal/repository"
 	"mail-service/internal/router"
@@ -19,10 +18,9 @@ import (
 )
 
 type App struct {
-	server      *http.Server
-	db          *database.Database
-	logger      *zap.Logger
-	mailService *mail.MailService
+	server *http.Server
+	db     *database.Database
+	logger *zap.Logger
 }
 
 func NewApp() *App {
@@ -30,45 +28,35 @@ func NewApp() *App {
 	if err != nil {
 		panic(fmt.Sprintf("Failed to load config: %v", err))
 	}
-
-	// Set the JWT key from config.
 	auth.SetJWTKey(cfg.Auth.JwtSecret)
-
 	logger, _ := zap.NewProduction()
-
 	db, err := database.InitDB(cfg, logger)
 	if err != nil {
 		logger.Fatal("Failed to connect to DB", zap.Error(err))
 	}
-	// Extra check for the underlying DB pointer.
 	if db.DB == nil {
 		logger.Fatal("Database.DB is nil after initialization")
 	}
-
-	// Initialize the mail service
-	mailSvc, err := mail.NewMailService()
-	if err != nil {
-		logger.Error("Failed to initialize mail service", zap.Error(err))
-		panic(err)
-	}
-
-	repo := repository.NewUserRepository(db.DB)
-	service := services.NewUserService(repo, logger)
-	handler := handlers.NewUserHandler(service, logger)
-
+	userRepo := repository.NewUserRepository(db.DB)
+	msgRepo := repository.NewMessageRepository(db.DB)
+	userSvc := services.NewUserService(userRepo, logger)
+	msgSvc := services.NewMessageService(msgRepo, userRepo)
+	userHandler := handlers.NewUserHandler(userSvc, logger)
+	mailHandler := handlers.NewMailHandler(msgSvc)
+	adminHandler := handlers.NewAdminHandler(userRepo, logger)
+	authHandler := handlers.NewAuthHandler(userRepo, logger)
 	r := gin.Default()
 	r.Use(middleware.LoggerMiddleware(logger), middleware.ErrorHandler())
-
-	router.SetupRouter(r, handler)
-
+	router.SetupRouter(r, userHandler)
+	router.SetupExpandedRoutes(r, mailHandler, adminHandler)
+	router.SetupAuthRoutes(r, authHandler)
 	return &App{
 		server: &http.Server{
-			Addr:    ":" + fmt.Sprintf("%d", cfg.Server.Port),
+			Addr:    fmt.Sprintf(":%d", cfg.Server.Port),
 			Handler: r,
 		},
-		db:          db,
-		logger:      logger,
-		mailService: mailSvc,
+		db:     db,
+		logger: logger,
 	}
 }
 
@@ -80,6 +68,5 @@ func (a *App) Run() error {
 func (a *App) Shutdown(ctx context.Context) {
 	a.logger.Info("Closing database connection")
 	a.db.Close()
-	a.mailService.Close()
 	a.logger.Sync()
 }

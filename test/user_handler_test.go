@@ -31,7 +31,6 @@ func setupHandlerTest(t *testing.T) *gin.Engine {
 	logger := zap.NewNop()
 	svc := services.NewUserService(repo, logger)
 	handler := handlers.NewUserHandler(svc, logger)
-
 	r := gin.Default()
 	router.SetupRouter(r, handler)
 	return r
@@ -39,7 +38,6 @@ func setupHandlerTest(t *testing.T) *gin.Engine {
 
 func TestRegisterUser_Success(t *testing.T) {
 	r := setupHandlerTest(t)
-
 	requestBody, _ := json.Marshal(map[string]string{
 		"email":    "test@example.com",
 		"password": "secretpass",
@@ -47,9 +45,7 @@ func TestRegisterUser_Success(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/register", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-
 	r.ServeHTTP(w, req)
-
 	if w.Code != http.StatusCreated {
 		t.Errorf("Expected status %d, got %d", http.StatusCreated, w.Code)
 	}
@@ -57,13 +53,10 @@ func TestRegisterUser_Success(t *testing.T) {
 
 func TestRegisterUser_InvalidJSON(t *testing.T) {
 	r := setupHandlerTest(t)
-
 	req, _ := http.NewRequest("POST", "/register", bytes.NewBuffer([]byte("{invalid json")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-
 	r.ServeHTTP(w, req)
-
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("Expected status %d, got %d", http.StatusBadRequest, w.Code)
 	}

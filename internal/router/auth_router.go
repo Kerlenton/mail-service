@@ -8,10 +8,7 @@ import (
 )
 
 func SetupAuthRoutes(r *gin.Engine, authHandler *handlers.AuthHandler) {
-	// Public auth endpoint
 	r.POST("/login", authHandler.Login)
-
-	// Example group of protected routes
 	protected := r.Group("/protected")
 	protected.Use(middleware.AuthMiddleware())
 	{

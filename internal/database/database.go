@@ -22,7 +22,6 @@ type Database struct {
 func InitDB(cfg *config.Config, logger *zap.Logger) (*Database, error) {
 	var dsn string
 	if envDSN := os.Getenv("DATABASE_URL"); envDSN != "" {
-		// Use the DATABASE_URL if set (format: postgres://user:password@host:port/dbname)
 		dsn = envDSN
 	} else {
 		dsn = fmt.Sprintf(
@@ -30,7 +29,6 @@ func InitDB(cfg *config.Config, logger *zap.Logger) (*Database, error) {
 			cfg.Database.Host, cfg.Database.User, cfg.Database.Password, cfg.Database.DBName, cfg.Database.Port,
 		)
 	}
-
 	var db *gorm.DB
 	var err error
 	const maxAttempts = 5
@@ -46,27 +44,20 @@ func InitDB(cfg *config.Config, logger *zap.Logger) (*Database, error) {
 		logger.Error("Failed to connect to database after retries", zap.Error(err))
 		return nil, err
 	}
-
-	// Ensure the underlying sql.DB is not nil.
 	sqlDB, err := db.DB()
 	if err != nil || sqlDB == nil {
 		logger.Error("Underlying sql.DB is nil", zap.Error(err))
 		return nil, fmt.Errorf("sql.DB is nil")
 	}
-
-	// Ping the database to ensure a valid connection.
 	if err := sqlDB.Ping(); err != nil {
 		logger.Error("Database ping failed", zap.Error(err))
 		return nil, errors.New("database ping failed")
 	}
-
 	logger.Info("Connected to database")
-
 	if err := RunMigrations(db); err != nil {
 		logger.Error("Failed to apply migrations", zap.Error(err))
 		return nil, err
 	}
-
 	return &Database{DB: db}, nil
 }
 
@@ -75,16 +66,13 @@ func RunMigrations(db *gorm.DB) error {
 	if err := goose.SetDialect("postgres"); err != nil {
 		return err
 	}
-
 	dbInstance, err := db.DB()
 	if err != nil {
 		return err
 	}
-
 	if err := goose.Up(dbInstance, migrationsDir); err != nil {
 		return err
 	}
-
 	log.Println("Migrations applied successfully")
 	return nil
 }

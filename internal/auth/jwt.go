@@ -6,7 +6,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-// Remove hardcoded jwtKey; use a variable that can be set via the SetJWTKey function.
 var jwtKey []byte
 
 func SetJWTKey(key string) {

@@ -20,11 +20,9 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 }
 
 func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) error {
-	// Added nil check at the very start.
 	if r.db == nil {
 		return errors.New("gorm.DB pointer is nil in CreateUser")
 	}
-	// Check that the underlying SQL connection is active.
 	sqlDB, err := r.db.DB()
 	if err != nil || sqlDB == nil {
 		return errors.New("underlying SQL connection is nil")

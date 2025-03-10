@@ -40,25 +40,17 @@ type AuthConfig struct {
 }
 
 func LoadConfig(path string) (*Config, error) {
-	// Create a new Viper instance for isolation.
 	v := viper.New()
 	v.SetConfigFile(path)
 	v.SetConfigType("yaml")
-
-	// Enable overriding via environment variables.
 	v.SetEnvPrefix("MAIL_SERVICE")
 	v.AutomaticEnv()
-
-	// Read configuration file.
 	if err := v.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
-
-	// Unmarshal config into struct.
 	var cfg Config
 	if err := v.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
-
 	return &cfg, nil
 }

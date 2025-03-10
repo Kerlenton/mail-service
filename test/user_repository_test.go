@@ -16,7 +16,6 @@ func setupTestDB() (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	db.AutoMigrate(&models.User{})
 	return db, nil
 }
@@ -24,11 +23,8 @@ func setupTestDB() (*gorm.DB, error) {
 func TestCreateUser(t *testing.T) {
 	db, err := setupTestDB()
 	assert.NoError(t, err)
-
 	repo := repository.NewUserRepository(db)
-
 	user := &models.User{Email: "test@example.com", PasswordHash: "hashedpassword"}
 	err = repo.CreateUser(context.Background(), user)
-
 	assert.NoError(t, err)
 }
