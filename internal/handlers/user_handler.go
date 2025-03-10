@@ -2,13 +2,20 @@ package handlers
 
 import (
 	"context"
-	"mail-service/internal/services"
 	"net/http"
 	"time"
+
+	"mail-service/internal/services"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
+
+// RegisterRequest represents the user registration payload.
+type RegisterRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
 
 type UserHandler struct {
 	service *services.UserService
@@ -19,11 +26,16 @@ func NewUserHandler(service *services.UserService, logger *zap.Logger) *UserHand
 	return &UserHandler{service: service, logger: logger}
 }
 
+// @Summary Register new user
+// @Description Create a new user account with email and password.
+// @Accept json
+// @Produce json
+// @Param user body RegisterRequest true "User credentials"
+// @Success 201 {string} string "User created successfully"
+// @Failure 400 {object} map[string]string "{"error": "Invalid request"}"
+// @Router /register [post]
 func (h *UserHandler) Register(c *gin.Context) {
-	var request struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+	var request RegisterRequest
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		h.logger.Warn("Invalid request", zap.Error(err))

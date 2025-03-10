@@ -24,6 +24,7 @@ func setupHandlerTest(t *testing.T) *gin.Engine {
 	if err != nil {
 		t.Fatalf("failed to open in-memory DB: %v", err)
 	}
+
 	if err := db.AutoMigrate(&models.User{}); err != nil {
 		t.Fatalf("auto migrate failed: %v", err)
 	}
@@ -46,6 +47,7 @@ func TestRegisterUser_Success(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
+
 	if w.Code != http.StatusCreated {
 		t.Errorf("Expected status %d, got %d", http.StatusCreated, w.Code)
 	}
@@ -57,6 +59,7 @@ func TestRegisterUser_InvalidJSON(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
+
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("Expected status %d, got %d", http.StatusBadRequest, w.Code)
 	}

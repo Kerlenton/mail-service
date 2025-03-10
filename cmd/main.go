@@ -1,13 +1,24 @@
+// @title Mail Service API
+// @version 1.0.0
+// @description API for handling mail operations.
+// @contact.name Semyon Usachev
+// @contact.email semyonschv@yandex.ru
+// @host localhost:8080
+// @BasePath /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 package main
 
 import (
 	"context"
 	"log"
-	"mail-service/internal"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"mail-service/internal"
 )
 
 func main() {
@@ -26,8 +37,9 @@ func main() {
 	<-ctx.Done()
 	log.Println("Shutting down server...")
 
-	// Завершаем работу сервера с тайм-аутом
+	// Shutdown server with timeout
 	ctxShutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
 	app.Shutdown(ctxShutdown)
 }

@@ -16,7 +16,10 @@ type UserService struct {
 }
 
 func NewUserService(repo *repository.UserRepository, logger *zap.Logger) *UserService {
-	return &UserService{repo: repo, logger: logger}
+	return &UserService{
+		repo:   repo,
+		logger: logger,
+	}
 }
 
 func (s *UserService) RegisterUser(ctx context.Context, email, password string) error {
@@ -29,7 +32,10 @@ func (s *UserService) RegisterUser(ctx context.Context, email, password string) 
 		s.logger.Error("Failed to hash password", zap.Error(err))
 		return err
 	}
-	user := &models.User{Email: email, PasswordHash: hashedPassword}
+	user := &models.User{
+		Email:        email,
+		PasswordHash: hashedPassword,
+	}
 	if err := s.repo.CreateUser(ctx, user); err != nil {
 		s.logger.Error("Failed to create user", zap.Error(err))
 		return err

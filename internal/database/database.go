@@ -29,6 +29,7 @@ func InitDB(cfg *config.Config, logger *zap.Logger) (*Database, error) {
 			cfg.Database.Host, cfg.Database.User, cfg.Database.Password, cfg.Database.DBName, cfg.Database.Port,
 		)
 	}
+
 	var db *gorm.DB
 	var err error
 	const maxAttempts = 5
@@ -44,6 +45,7 @@ func InitDB(cfg *config.Config, logger *zap.Logger) (*Database, error) {
 		logger.Error("Failed to connect to database after retries", zap.Error(err))
 		return nil, err
 	}
+
 	sqlDB, err := db.DB()
 	if err != nil || sqlDB == nil {
 		logger.Error("Underlying sql.DB is nil", zap.Error(err))
@@ -54,6 +56,7 @@ func InitDB(cfg *config.Config, logger *zap.Logger) (*Database, error) {
 		return nil, errors.New("database ping failed")
 	}
 	logger.Info("Connected to database")
+
 	if err := RunMigrations(db); err != nil {
 		logger.Error("Failed to apply migrations", zap.Error(err))
 		return nil, err

@@ -24,12 +24,14 @@ func (s *MessageService) SendMessage(senderID uint, receiverEmail, subject, body
 	if err != nil || receiver == nil {
 		return errors.New("receiver not found")
 	}
+
 	msg := &models.Message{
 		SenderID:   senderID,
 		ReceiverID: receiver.ID,
 		Subject:    subject,
 		Body:       body,
 	}
+
 	return s.msgRepo.CreateMessage(msg)
 }
 
@@ -38,6 +40,7 @@ func (s *MessageService) GetMessages(userID uint) (sent []models.Message, receiv
 	if err != nil {
 		return
 	}
+
 	received, err = s.msgRepo.GetReceivedMessages(userID)
 	return
 }

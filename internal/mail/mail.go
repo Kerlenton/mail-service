@@ -20,6 +20,7 @@ func NewMailService() (*MailService, error) {
 	if rabbitURL == "" {
 		return nil, fmt.Errorf("RABBITMQ_URL not set")
 	}
+
 	var conn *amqp.Connection
 	var err error
 	const maxAttempts = 5
@@ -34,11 +35,13 @@ func NewMailService() (*MailService, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to RabbitMQ after retries: %w", err)
 	}
+
 	ch, err := conn.Channel()
 	if err != nil {
 		conn.Close()
 		return nil, fmt.Errorf("failed to open RabbitMQ channel: %w", err)
 	}
+
 	q, err := ch.QueueDeclare(
 		"mail_queue",
 		true,
@@ -52,6 +55,7 @@ func NewMailService() (*MailService, error) {
 		conn.Close()
 		return nil, fmt.Errorf("failed to declare queue: %w", err)
 	}
+
 	return &MailService{
 		conn:  conn,
 		ch:    ch,

@@ -28,8 +28,10 @@ func NewApp() *App {
 	if err != nil {
 		panic(fmt.Sprintf("Failed to load config: %v", err))
 	}
+
 	auth.SetJWTKey(cfg.Auth.JwtSecret)
 	logger, _ := zap.NewProduction()
+
 	db, err := database.InitDB(cfg, logger)
 	if err != nil {
 		logger.Fatal("Failed to connect to DB", zap.Error(err))
@@ -37,19 +39,29 @@ func NewApp() *App {
 	if db.DB == nil {
 		logger.Fatal("Database.DB is nil after initialization")
 	}
+
+	// Repositories
 	userRepo := repository.NewUserRepository(db.DB)
 	msgRepo := repository.NewMessageRepository(db.DB)
+
+	// Services
 	userSvc := services.NewUserService(userRepo, logger)
 	msgSvc := services.NewMessageService(msgRepo, userRepo)
+
+	// Handlers
 	userHandler := handlers.NewUserHandler(userSvc, logger)
 	mailHandler := handlers.NewMailHandler(msgSvc)
 	adminHandler := handlers.NewAdminHandler(userRepo, logger)
 	authHandler := handlers.NewAuthHandler(userRepo, logger)
+
+	// Router setup
 	r := gin.Default()
 	r.Use(middleware.LoggerMiddleware(logger), middleware.ErrorHandler())
+
 	router.SetupRouter(r, userHandler)
 	router.SetupExpandedRoutes(r, mailHandler, adminHandler)
 	router.SetupAuthRoutes(r, authHandler)
+
 	return &App{
 		server: &http.Server{
 			Addr:    fmt.Sprintf(":%d", cfg.Server.Port),

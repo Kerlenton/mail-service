@@ -23,13 +23,16 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) erro
 	if r.db == nil {
 		return errors.New("gorm.DB pointer is nil in CreateUser")
 	}
+
 	sqlDB, err := r.db.DB()
 	if err != nil || sqlDB == nil {
 		return errors.New("underlying SQL connection is nil")
 	}
+
 	if err := sqlDB.Ping(); err != nil {
 		return errors.New("underlying SQL connection is not active")
 	}
+
 	return r.db.WithContext(ctx).Create(user).Error
 }
 
