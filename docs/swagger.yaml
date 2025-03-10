@@ -1,0 +1,189 @@
+basePath: /
+definitions:
+  handlers.ErrorResponse:
+    properties:
+      error:
+        example: Invalid request
+        type: string
+    type: object
+  handlers.LoginRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: password123
+        type: string
+    type: object
+  handlers.MailMessagesResponse:
+    properties:
+      received:
+        items: {}
+        type: array
+      sent:
+        items: {}
+        type: array
+    type: object
+  handlers.MessageResponse:
+    properties:
+      message:
+        example: Message sent successfully
+        type: string
+    type: object
+  handlers.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  handlers.SendMailRequest:
+    properties:
+      body:
+        example: Hello, this is a test email.
+        type: string
+      receiver_email:
+        example: receiver@example.com
+        type: string
+      subject:
+        example: Test Email
+        type: string
+    type: object
+  handlers.TokenResponse:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.some.token.here
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: semyonschv@yandex.ru
+    name: Semyon Usachev
+  description: API for handling mail operations.
+  title: Mail Service API
+  version: 1.0.0
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return a JWT token.
+      parameters:
+      - description: User credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful login
+          schema:
+            $ref: '#/definitions/handlers.TokenResponse'
+        "400":
+          description: '{"error": "Invalid request"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: '{"error": "Invalid credentials"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+  /mail/messages:
+    get:
+      description: Retrieve sent and received mail messages for the authenticated
+        user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Mail messages
+          schema:
+            $ref: '#/definitions/handlers.MailMessagesResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get mail messages
+  /mail/send:
+    post:
+      consumes:
+      - application/json
+      description: Send an email message.
+      parameters:
+      - description: Mail message
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SendMailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Message sent successfully
+          schema:
+            $ref: '#/definitions/handlers.MessageResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Send mail
+  /mail/status:
+    get:
+      description: Returns the operational status of the mail service.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Mail service is operational
+          schema:
+            $ref: '#/definitions/handlers.MessageResponse'
+      summary: Get mail service status
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account with email and password.
+      parameters:
+      - description: User credentials
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            type: string
+        "400":
+          description: '{"error": "Invalid request"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register new user
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
